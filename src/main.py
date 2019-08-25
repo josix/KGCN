@@ -53,9 +53,9 @@ parser.add_argument('--ratio', type=float, default=1, help='size of training dat
 '''
 
 
-show_loss = False
-show_time = False
-show_topk = False
+show_loss = True
+show_time = True
+show_topk = True
 
 t = time()
 

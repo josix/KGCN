@@ -1,0 +1,19 @@
+U-I:
+# users: 138,159
+# items: 16,954
+# interactions: 13,501,622
+
+KG:
+# entities: 102,569
+# relations: 32
+# KG triples: 499,474
+epoch 0    train auc: 0.9725  f1: 0.9193    eval auc: 0.9677  f1: 0.9140    test auc: 0.9678  f1: 0.9143
+epoch 1    train auc: 0.9785  f1: 0.9288    eval auc: 0.9713  f1: 0.9192    test auc: 0.9715  f1: 0.9196
+epoch 2    train auc: 0.9854  f1: 0.9430    eval auc: 0.9752  f1: 0.9270    test auc: 0.9753  f1: 0.9275
+epoch 3    train auc: 0.9896  f1: 0.9529    eval auc: 0.9773  f1: 0.9309    test auc: 0.9774  f1: 0.9312
+epoch 4    train auc: 0.9921  f1: 0.9595    eval auc: 0.9772  f1: 0.9312    test auc: 0.9773  f1: 0.9314
+epoch 5    train auc: 0.9937  f1: 0.9643    eval auc: 0.9768  f1: 0.9301    test auc: 0.9768  f1: 0.9303
+epoch 6    train auc: 0.9948  f1: 0.9680    eval auc: 0.9762  f1: 0.9298    test auc: 0.9763  f1: 0.9301
+epoch 7    train auc: 0.9955  f1: 0.9707    eval auc: 0.9758  f1: 0.9294    test auc: 0.9759  f1: 0.9297
+epoch 8    train auc: 0.9959  f1: 0.9725    eval auc: 0.9754  f1: 0.9287    test auc: 0.9754  f1: 0.9289
+epoch 9    train auc: 0.9963  f1: 0.9742    eval auc: 0.9750  f1: 0.9283    test auc: 0.9752  f1: 0.9285
