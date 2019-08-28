@@ -1,1 +1,1 @@
-../../IMDb/item_index2entity_id.txt
+../../IMDb/item_index2entity_id_ratio_0.75.txt

@@ -7,6 +7,9 @@ THRESHOLD = dict({'movie': 4, 'book': 0, 'music': 0})
 
 
 def read_item_index_to_entity_id_file():
+    '''
+    Item reindex and sync items in interaction graph and knowledge graph at the same time
+    '''
     file = '../data/' + DATASET + '/item_index2entity_id.txt'
     print('reading item index to entity id file: ' + file + ' ...')
     i = 0
@@ -22,9 +25,9 @@ def convert_rating():
     file = '../data/' + DATASET + '/' + RATING_FILE_NAME[DATASET]
 
     print('reading rating file ...')
-    item_set = set(item_index_old2new.values())
-    user_pos_ratings = dict()
-    user_neg_ratings = dict()
+    user_pos_ratings:Dict[int, set] = dict() # user to pos items
+    user_neg_ratings:Dict[int, set] = dict() # user to not pos items
+    missing_in_kg_cnt = 0
 
     for line in open(file, encoding='utf-8').readlines()[1:]:
         array = line.strip().split(SEP[DATASET])
@@ -34,8 +37,9 @@ def convert_rating():
             array = list(map(lambda x: x[1:-1], array))
 
         item_index_old = array[1]
-        if item_index_old not in item_index_old2new:  # the item is not in the final item set
-            continue
+        if item_index_old not in item_index_old2new:
+            item_index_old2new[item_index_old] = len(item_index_old2new)
+            missing_in_kg_cnt += 1
         item_index = item_index_old2new[item_index_old]
 
         user_index_old = int(array[0])
@@ -49,11 +53,12 @@ def convert_rating():
             if user_index_old not in user_neg_ratings:
                 user_neg_ratings[user_index_old] = set()
             user_neg_ratings[user_index_old].add(item_index)
+    item_set = set(item_index_old2new.values())
 
     print('converting rating file ...')
     writer = open('../data/' + DATASET + '/ratings_final.txt', 'w', encoding='utf-8')
     user_cnt = 0
-    user_index_old2new = dict()
+    user_index_old2new:Dict[int, int] = dict() # user reindex
     for user_index_old, pos_item_set in user_pos_ratings.items():
         if user_index_old not in user_index_old2new:
             user_index_old2new[user_index_old] = user_cnt
@@ -70,6 +75,7 @@ def convert_rating():
     writer.close()
     print('number of users: %d' % user_cnt)
     print('number of items: %d' % len(item_set))
+    print('number of missing items in KG %d' % missing_in_kg_cnt)
 
 
 def convert_kg():
