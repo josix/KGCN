@@ -1,3 +1,5 @@
+from typing import List
+
 import tensorflow as tf
 import numpy as np
 from model import KGCN
@@ -37,7 +39,7 @@ def train(args, data, show_loss, show_topk):
 
             # top-K evaluation
             if show_topk:
-                precision, recall = topk_eval(
+                precision, recall, map_ = topk_eval(
                     sess, model, user_list, train_record, test_record, item_set, k_list, args.batch_size)
                 print('precision: ', end='')
                 for i in precision:
@@ -45,6 +47,10 @@ def train(args, data, show_loss, show_topk):
                 print()
                 print('recall: ', end='')
                 for i in recall:
+                    print('%.4f\t' % i, end='')
+                print()
+                print('MAP: ', end='')
+                for i in map_:
                     print('%.4f\t' % i, end='')
                 print('\n')
 
@@ -82,10 +88,22 @@ def ctr_eval(sess, model, data, batch_size):
         start += batch_size
     return float(np.mean(auc_list)), float(np.mean(f1_list))
 
+def count_average_precision(predict:List, label:set):
+    match = [rec in set(label) for rec in predict]
+    average_precision = 0.0
+    match_count = 0
+    for i, is_matching in enumerate(match):
+        if is_matching:
+            match_count += 1
+            average_precision += match_count / (i + 1)
+    return average_precision / len(predict)
+
+
 
 def topk_eval(sess, model, user_list, train_record, test_record, item_set, k_list, batch_size):
     precision_list = {k: [] for k in k_list}
     recall_list = {k: [] for k in k_list}
+    average_precision_list = {k: [] for k in k_list}
 
     for user in user_list:
         test_item_list = list(item_set - train_record[user])
@@ -114,11 +132,13 @@ def topk_eval(sess, model, user_list, train_record, test_record, item_set, k_lis
             hit_num = len(set(item_sorted[:k]) & test_record[user])
             precision_list[k].append(hit_num / k)
             recall_list[k].append(hit_num / len(test_record[user]))
+            average_precision_list[k].append(count_average_precision(item_sorted[:k], test_record[user]))
 
     precision = [np.mean(precision_list[k]) for k in k_list]
     recall = [np.mean(recall_list[k]) for k in k_list]
+    map_ = [np.mean(average_precision_list[k]) for k in k_list]
 
-    return precision, recall
+    return precision, recall, map_
 
 
 def get_user_record(data, is_train):

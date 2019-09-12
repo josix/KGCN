@@ -98,8 +98,6 @@ data/movie/*
 data/music/*
 !data/movie/original/item_index2entity_id.txt
 !data/movie/original/kg.txt
-!data/movie/item_index2entity_id.txt
-!data/movie/kg.txt
 !data/music/item_index2entity_id.txt
 !data/music/kg.txt
 !data/music/user_artists.dat

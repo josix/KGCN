@@ -1,0 +1,71 @@
+Data Description:
+================================================================================
+U-I Graph:
+number of users: 6038
+number of items: 3738
+number of missing items in KG 2173
+number of interactions: 1,150,562
+
+KG:
+number of entities (containing items): 883272
+number of relations: 5
+number of KG triples: 999999
+
+Exp-Result:
+================================================================================
+CTR:
+train auc: 0.9415  f1: 0.8698    eval auc: 0.9064  f1: 0.8351    test auc: 0.9063  f1: 0.8355
+top-k:     k=1    k=2     k=5     k=10    k=20    k=50    k=100
+precision: 0.1500	0.1650	0.1240	0.1080	0.1010	0.0776	0.0628	
+recall: 0.0063	0.0151	0.0325	0.0553	0.1004	0.2108	0.3267	
+time used: 345 s
+
+Log:
+================================================================================
+reading rating file ...
+splitting dataset ...
+reading KG file ...
+constructing knowledge graph ...
+constructing adjacency matrix ...
+data loaded.
+epoch 0    train auc: 0.8551  f1: 0.8054    eval auc: 0.8504  f1: 0.8015    test auc: 0.8506  f1: 0.8030
+precision: 0.1500	0.1450	0.1100	0.0800	0.0675	0.0498	0.0420	
+recall: 0.0082	0.0148	0.0347	0.0470	0.0855	0.1369	0.2275	
+
+epoch 1    train auc: 0.8803  f1: 0.8119    eval auc: 0.8714  f1: 0.8077    test auc: 0.8710  f1: 0.8079
+precision: 0.1200	0.1450	0.1060	0.0940	0.0870	0.0674	0.0542	
+recall: 0.0061	0.0140	0.0331	0.0599	0.1066	0.2008	0.3170	
+
+epoch 2    train auc: 0.8923  f1: 0.8086    eval auc: 0.8820  f1: 0.8004    test auc: 0.8824  f1: 0.8018
+precision: 0.1400	0.1350	0.1260	0.1110	0.0915	0.0712	0.0565	
+recall: 0.0065	0.0143	0.0386	0.0685	0.1183	0.2121	0.3297	
+
+epoch 3    train auc: 0.8968  f1: 0.8166    eval auc: 0.8830  f1: 0.8048    test auc: 0.8834  f1: 0.8060
+precision: 0.1400	0.1450	0.1300	0.1180	0.0970	0.0726	0.0560	
+recall: 0.0083	0.0159	0.0399	0.0763	0.1276	0.2240	0.3214	
+
+epoch 4    train auc: 0.9011  f1: 0.8222    eval auc: 0.8841  f1: 0.8080    test auc: 0.8840  f1: 0.8090
+precision: 0.1200	0.1550	0.1280	0.1110	0.0955	0.0754	0.0568	
+recall: 0.0060	0.0156	0.0385	0.0649	0.1188	0.2307	0.3131	
+
+epoch 5    train auc: 0.9071  f1: 0.8262    eval auc: 0.8853  f1: 0.8073    test auc: 0.8854  f1: 0.8081
+precision: 0.1200	0.1450	0.1260	0.1210	0.1005	0.0754	0.0576	
+recall: 0.0064	0.0164	0.0348	0.0675	0.1240	0.2198	0.3289	
+
+epoch 6    train auc: 0.9168  f1: 0.8389    eval auc: 0.8921  f1: 0.8166    test auc: 0.8925  f1: 0.8183
+precision: 0.1800	0.1450	0.1300	0.1220	0.1050	0.0760	0.0587	
+recall: 0.0077	0.0126	0.0282	0.0629	0.1286	0.2103	0.3195	
+
+epoch 7    train auc: 0.9273  f1: 0.8513    eval auc: 0.8994  f1: 0.8262    test auc: 0.8996  f1: 0.8265
+precision: 0.1600	0.1500	0.1460	0.1130	0.1000	0.0774	0.0609	
+recall: 0.0089	0.0148	0.0317	0.0587	0.1178	0.2208	0.3256	
+
+epoch 8    train auc: 0.9351  f1: 0.8605    eval auc: 0.9030  f1: 0.8291    test auc: 0.9031  f1: 0.8301
+precision: 0.2100	0.1600	0.1400	0.1200	0.1020	0.0790	0.0615	
+recall: 0.0109	0.0163	0.0364	0.0599	0.1138	0.2225	0.3328	
+
+epoch 9    train auc: 0.9415  f1: 0.8698    eval auc: 0.9064  f1: 0.8351    test auc: 0.9063  f1: 0.8355
+precision: 0.1500	0.1650	0.1240	0.1080	0.1010	0.0776	0.0628	
+recall: 0.0063	0.0151	0.0325	0.0553	0.1004	0.2108	0.3267	
+
+time used: 345 s
