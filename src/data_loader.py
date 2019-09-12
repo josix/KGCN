@@ -94,7 +94,10 @@ def construct_adj(args, kg, entity_num):
     adj_entity = np.zeros([entity_num, args.neighbor_sample_size], dtype=np.int64)
     adj_relation = np.zeros([entity_num, args.neighbor_sample_size], dtype=np.int64)
     for entity in range(entity_num):
-        neighbors = kg[entity]
+        try:
+            neighbors = kg[entity]
+        except KeyError:
+            continue
         n_neighbors = len(neighbors)
         if n_neighbors >= args.neighbor_sample_size:
             sampled_indices = np.random.choice(list(range(n_neighbors)), size=args.neighbor_sample_size, replace=False)

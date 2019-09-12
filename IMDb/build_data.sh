@@ -14,3 +14,4 @@ python3  ./bind_ml_imdb.py
 python3  ./bind_ml_imdb.py -r 0.75
 python3  ./bind_ml_imdb.py -r 0.5
 python3  ./bind_ml_imdb.py -r 0.25
+touch item_index2entity_id_ratio_0.0.txt

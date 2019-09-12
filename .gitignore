@@ -107,4 +107,9 @@ data/music/*
 IMDb/*.tsv
 IMDb/*.txt
 IMDb/*.csv
+DBpedia/*.tsv
+DBpedia/*.txt
+DBpedia/*.csv
 ml-20m/*
+ml-1m/*
+
