@@ -17,7 +17,7 @@ parser.add_argument('-r', type=float, default=0.0, help='ratio of missing items'
 args = parser.parse_args()
 RATIO = 1 - args.r
 
-with open('item_index2entity_id_ratio_{}.txt'.format(RATIO), 'wt') as fout:
+with open('item_index2entity_id_ratio_{:.2f}.txt'.format(RATIO), 'wt') as fout:
     future_to_movie = {}
     with cf.ProcessPoolExecutor(max_workers=50) as executor:
         with open('./links.csv') as fin:

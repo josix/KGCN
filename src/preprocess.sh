@@ -1,6 +1,22 @@
 #!/bin/bash
 
-KG="DBpedia"
+if [ $# != 1 ]
+then
+  echo "USAGE: ./experiment.sh {DBpedia | IMDb}";
+  exit 1
+fi
+
+KG="$1"
+
+case $KG in
+  DBpedia)
+    ;;
+  IMDb)
+    ;;
+   *)
+    echo "USAGE: ./experiment.sh {DBpedia | IMDb}"
+    exit 1
+esac
 
 if [ -e ../data/movie/kg.txt ]
 then
