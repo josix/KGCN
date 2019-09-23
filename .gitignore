@@ -110,4 +110,4 @@ DBpedia/*.txt
 DBpedia/*.csv
 ml-20m/*
 ml-1m/*
-
+exp_result/*

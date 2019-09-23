@@ -24,6 +24,11 @@ parser.add_argument('-r', type=float, default=0.0, help='ratio of missing items'
 args = parser.parse_args()
 RATIO = 1 - args.r
 
+with open('../ml-1m/ratining.csv') as fin:
+    fin.readline()
+    ALL_ITEMS = {line.strip().split(',')[1] for line in fin}
+
+
 with open('item_index2entity_id_ratio_{:.2f}.txt'.format(RATIO), 'wt') as fout:
     future_to_movie = {}
     with cf.ProcessPoolExecutor(max_workers=50) as executor:
@@ -31,7 +36,8 @@ with open('item_index2entity_id_ratio_{:.2f}.txt'.format(RATIO), 'wt') as fout:
             fin.readline()
             for line in fin:
                 movie_id, _, dbpedia_id = line.strip().split('\t')
-                future_to_movie[executor.submit(get_mapping, dbpedia_id)] = movie_id
+                if movie_id in ALL_ITEMS:
+                    future_to_movie[executor.submit(get_mapping, dbpedia_id)] = movie_id
         output:list = []
         for future in cf.as_completed(future_to_movie):
             movie_id = future_to_movie[future]
