@@ -14,7 +14,7 @@ def load_rating(args):
     print('reading rating file ...')
 
     # reading rating file
-    rating_file = '../data/' + args.dataset + '/ratings_final'
+    rating_file = args.dataset + '/ratings_final'
     if os.path.exists(rating_file + '.npy'):
         rating_np = np.load(rating_file + '.npy')
     else:
@@ -32,8 +32,8 @@ def dataset_split(rating_np, args):
     print('splitting dataset ...')
 
     # train:eval:test = 6:2:2
-    eval_ratio = 0.2
-    test_ratio = 0.2
+    eval_ratio = 0
+    test_ratio = 0
     n_ratings = rating_np.shape[0]
 
     eval_indices = np.random.choice(list(range(n_ratings)), size=int(n_ratings * eval_ratio), replace=False)
@@ -54,7 +54,7 @@ def load_kg(args):
     print('reading KG file ...')
 
     # reading kg file
-    kg_file = '../data/' + args.dataset + '/kg_final'
+    kg_file = args.dataset + '/kg_final'
     if os.path.exists(kg_file + '.npy'):
         kg_np = np.load(kg_file + '.npy')
     else:

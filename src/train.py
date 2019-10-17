@@ -1,5 +1,6 @@
 import tensorflow as tf
 import numpy as np
+import pickle as pkl
 from model import KGCN
 
 
@@ -10,8 +11,8 @@ def train(args, data, show_loss, show_topk):
 
     model = KGCN(args, n_user, n_entity, n_relation, adj_entity, adj_relation)
 
-    # top-K evaluation settings
-    user_list, train_record, test_record, item_set, k_list = topk_settings(show_topk, train_data, test_data, n_item)
+    # # top-K evaluation settings
+    # user_list, train_record, test_record, item_set, k_list = topk_settings(show_topk, train_data, test_data, n_item)
 
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
@@ -26,27 +27,29 @@ def train(args, data, show_loss, show_topk):
                 start += args.batch_size
                 if show_loss:
                     print(start, loss)
-
-            # CTR evaluation
             train_auc, train_f1 = ctr_eval(sess, model, train_data, args.batch_size)
-            eval_auc, eval_f1 = ctr_eval(sess, model, eval_data, args.batch_size)
-            test_auc, test_f1 = ctr_eval(sess, model, test_data, args.batch_size)
+            print('epoch %d    train auc: %.4f  f1: %.4f' % (step, train_auc, train_f1))
+        save_model(args, model)
+            # CTR evaluation
+            # train_auc, train_f1 = ctr_eval(sess, model, train_data, args.batch_size)
+            # eval_auc, eval_f1 = ctr_eval(sess, model, eval_data, args.batch_size)
+            # test_auc, test_f1 = ctr_eval(sess, model, test_data, args.batch_size)
 
-            print('epoch %d    train auc: %.4f  f1: %.4f    eval auc: %.4f  f1: %.4f    test auc: %.4f  f1: %.4f'
-                  % (step, train_auc, train_f1, eval_auc, eval_f1, test_auc, test_f1))
+            # print('epoch %d    train auc: %.4f  f1: %.4f    eval auc: %.4f  f1: %.4f    test auc: %.4f  f1: %.4f'
+            #       % (step, train_auc, train_f1, eval_auc, eval_f1, test_auc, test_f1))
 
-            # top-K evaluation
-            if show_topk:
-                precision, recall = topk_eval(
-                    sess, model, user_list, train_record, test_record, item_set, k_list, args.batch_size)
-                print('precision: ', end='')
-                for i in precision:
-                    print('%.4f\t' % i, end='')
-                print()
-                print('recall: ', end='')
-                for i in recall:
-                    print('%.4f\t' % i, end='')
-                print('\n')
+            # # top-K evaluation
+            # if show_topk:
+            #     precision, recall = topk_eval(
+            #         sess, model, user_list, train_record, test_record, item_set, k_list, args.batch_size)
+            #     print('precision: ', end='')
+            #     for i in precision:
+            #         print('%.4f\t' % i, end='')
+            #     print()
+            #     print('recall: ', end='')
+            #     for i in recall:
+            #         print('%.4f\t' % i, end='')
+            #     print('\n')
 
 
 def topk_settings(show_topk, train_data, test_data, n_item):
@@ -82,6 +85,19 @@ def ctr_eval(sess, model, data, batch_size):
         start += batch_size
     return float(np.mean(auc_list)), float(np.mean(f1_list))
 
+def save_model(args, model):
+    # item_embs = sess.run([model.item_embeddings])
+    with open(args.dataset + '/idx_to_user.pkl', 'rb') as fin:
+        idx_to_user = pkl.load(fin)
+    with open(args.dataset + '/idx_to_entity.pkl', 'rb') as fin:
+        idx_to_entity = pkl.load(fin)
+    with open("rep_KGCN.txt".format(args), 'wt') as fout:
+        user_emb_mtx, entity_emb_mtx = model.user_emb_matrix.eval(), model.entity_emb_matrix.eval()
+        fout.write("{} {}\n".format(len(user_emb_mtx) + len(entity_emb_mtx), args.dim))
+        for idx, emb in enumerate(user_emb_mtx):
+            fout.write("{} {}\n".format(idx_to_user[idx], " ".join([str(val) for val in emb.tolist()])))
+        for idx, emb in enumerate(entity_emb_mtx):
+            fout.write("{} {}\n".format(idx_to_entity[idx], " ".join([str(val) for val in emb.tolist()])))
 
 def topk_eval(sess, model, user_list, train_record, test_record, item_set, k_list, batch_size):
     precision_list = {k: [] for k in k_list}
