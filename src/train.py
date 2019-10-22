@@ -1,4 +1,6 @@
-from typing import List
+from typing import List, DefaultDict, Dict
+import pickle as pkl
+from collections import defaultdict
 
 import tensorflow as tf
 import numpy as np
@@ -11,10 +13,54 @@ def train(args, data, show_loss, show_topk):
     adj_entity, adj_relation = data[7], data[8]
 
     model = KGCN(args, n_user, n_entity, n_relation, adj_entity, adj_relation)
-
+    K_LIST=[1, 10, 100]
     # top-K evaluation settings
-    user_list, train_record, test_record, item_set, k_list = topk_settings(show_topk, train_data, test_data, n_item)
-
+    user_list, train_record, test_record, item_set = topk_settings(
+        show_topk,
+        train_data,
+        test_data,
+        n_item,
+        user_num=10000,
+        )
+    group_to_amount = defaultdict(int)
+    user_to_group = defaultdict(int)
+    user_with_degree = []
+    group_to_ratings = defaultdict(list)
+    # Export train_record
+    # with open('./train_record.pkl', 'wb') as fout:
+    #     pkl.dump(train_record, fout)
+    for user, records in test_record.items():
+        user_with_degree.append((len(records), user))
+    total_user = len(user_with_degree)
+    user_with_degree.sort()
+    lower_bound = 1
+    upper_bound = total_user
+    groups_num = 10
+    interval = int((upper_bound - lower_bound + 1) / groups_num)
+    print('min: {} max: {} intaerval: {}'.format(lower_bound, upper_bound, interval))
+    group_count = 1
+    for i in range(lower_bound, upper_bound, interval):
+        if i+interval-1 < len(user_with_degree):
+            print("Group {}: degree {} - degree {}".format(group_count, user_with_degree[i-1][0], user_with_degree[i+interval-1][0]))
+        else:
+            print("Group {}: degree {} - degree {}".format(group_count, user_with_degree[i-1][0], user_with_degree[-1][0]))
+        group_count += 1
+    def map_group(num):
+        group = (num - lower_bound + 1) // interval
+        if group < 0:
+            return 0
+        elif group > groups_num:
+            return 99999
+        else:
+            return group
+    for idx, (_, user) in enumerate(user_with_degree):
+        group_to_amount[map_group(idx+1)] += 1
+        user_to_group[user] = map_group(idx+1)
+        group_to_ratings[map_group(idx+1)] += test_record[user]
+    with open('../data/{}/group_to_rating.pkl'.format(args.dataset), 'wb') as fout:
+        pkl.dump(group_to_ratings, fout)
+    with open('../data/{}/group_to_amount_user.pkl'.format(args.dataset), 'wb') as fout:
+        pkl.dump(group_to_amount, fout)
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
 
@@ -36,11 +82,10 @@ def train(args, data, show_loss, show_topk):
 
             print('epoch %d    train auc: %.4f  f1: %.4f    eval auc: %.4f  f1: %.4f    test auc: %.4f  f1: %.4f'
                   % (step, train_auc, train_f1, eval_auc, eval_f1, test_auc, test_f1))
-
             # top-K evaluation
             if show_topk:
-                precision, recall, map_ = topk_eval(
-                    sess, model, user_list, train_record, test_record, item_set, k_list, args.batch_size)
+                precision, recall, map_, k_to_f1 = topk_eval(
+                    sess, model, user_list, train_record, test_record, item_set, K_LIST, args.batch_size, user_to_group)
                 print('precision: ', end='')
                 for i in precision:
                     print('%.4f\t' % i, end='')
@@ -53,19 +98,22 @@ def train(args, data, show_loss, show_topk):
                 for i in map_:
                     print('%.4f\t' % i, end='')
                 print('\n')
+                if step == args.n_epochs - 1:
+                    # Export pikle file so as to draw it at laptop
+                    with open('../data/{}/k_to_f1_list_user.pkl'.format(args.dataset), 'wb') as fout:
+                        pkl.dump(k_to_f1, fout)
 
 
-def topk_settings(show_topk, train_data, test_data, n_item):
+
+def topk_settings(show_topk, train_data, test_data, n_item, user_num=100):
     if show_topk:
-        user_num = 100
-        k_list = [1, 2, 5, 10, 20, 50, 100]
         train_record = get_user_record(train_data, True)
         test_record = get_user_record(test_data, False)
         user_list = list(set(train_record.keys()) & set(test_record.keys()))
         if len(user_list) > user_num:
             user_list = np.random.choice(user_list, size=user_num, replace=False)
         item_set = set(list(range(n_item)))
-        return user_list, train_record, test_record, item_set, k_list
+        return user_list, train_record, test_record, item_set
     else:
         return [None] * 5
 
@@ -98,12 +146,13 @@ def count_average_precision(predict:List, label:set):
             average_precision += match_count / (i + 1)
     return average_precision / len(predict)
 
+count_f1 = lambda p, r: 2 * (p * r / (p + r)) if p + r != 0 else 0
 
-
-def topk_eval(sess, model, user_list, train_record, test_record, item_set, k_list, batch_size):
-    precision_list = {k: [] for k in k_list}
-    recall_list = {k: [] for k in k_list}
-    average_precision_list = {k: [] for k in k_list}
+def topk_eval(sess, model, user_list, train_record, test_record, item_set, k_list:list, batch_size, user_to_group):
+    precision_list: Dict[int, list] = {k: [] for k in k_list}
+    recall_list: Dict[int, list] = {k: [] for k in k_list}
+    average_precision_list: Dict[int, list] = {k: [] for k in k_list}
+    k_to_group_to_f1: Dict[int, DefaultDict[int, list]] = {k: defaultdict(list) for k in k_list}
 
     for user in user_list:
         test_item_list = list(item_set - train_record[user])
@@ -133,12 +182,19 @@ def topk_eval(sess, model, user_list, train_record, test_record, item_set, k_lis
             precision_list[k].append(hit_num / k)
             recall_list[k].append(hit_num / len(test_record[user]))
             average_precision_list[k].append(count_average_precision(item_sorted[:k], test_record[user]))
+            if user_to_group[user] >= 0 and user_to_group[user] != 99999:
+                k_to_group_to_f1[k][user_to_group[user]].append(count_f1(precision_list[k][-1], recall_list[k][-1]))
 
     precision = [np.mean(precision_list[k]) for k in k_list]
     recall = [np.mean(recall_list[k]) for k in k_list]
     map_ = [np.mean(average_precision_list[k]) for k in k_list]
-
-    return precision, recall, map_
+    k_to_f1: Dict[int, list] = {}
+    for k in k_list:
+        k_to_f1[k] = []
+        for group in k_to_group_to_f1[k]:
+            k_to_f1[k].append((group, np.mean(k_to_group_to_f1[k][group])))
+        k_to_f1[k] = [i[1] for i in sorted(k_to_f1[k])]
+    return precision, recall, map_, k_to_f1
 
 
 def get_user_record(data, is_train):

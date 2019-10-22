@@ -2,19 +2,23 @@
 
 if [ $# != 1 ]
 then
-  echo "USAGE: ./experiment.sh {DBpedia | IMDb}";
+  echo "USAGE: ./experiment.sh {DBpedia | IMDb | KTUP_DBpedia|Satori}";
   exit 1
 fi
 
 KG="$1"
 
 case $KG in
+  Satori)
+    ;;
+  KTUP_DBpedia)
+    ;;
   DBpedia)
     ;;
   IMDb)
     ;;
    *)
-    echo "USAGE: ./experiment.sh {DBpedia | IMDb}"
+    echo "USAGE: ./experiment.sh {DBpedia | IMDb | KTUP_DBpedia | Satori}"
     exit 1
 esac
 
