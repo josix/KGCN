@@ -91,13 +91,13 @@ def save_model(args, model):
         idx_to_user = pkl.load(fin)
     with open(args.dataset + '/idx_to_entity.pkl', 'rb') as fin:
         idx_to_entity = pkl.load(fin)
-    with open("rep_KGCN.txt".format(args), 'wt') as fout:
+    with open(args.dataset + "/rep_KGCN.txt".format(args), 'wt') as fout:
         user_emb_mtx, entity_emb_mtx = model.user_emb_matrix.eval(), model.entity_emb_matrix.eval()
         fout.write("{} {}\n".format(len(user_emb_mtx) + len(entity_emb_mtx), args.dim))
         for idx, emb in enumerate(user_emb_mtx):
-            fout.write("{} {}\n".format(idx_to_user[idx], " ".join([str(val) for val in emb.tolist()])))
+            fout.write("{} {}\n".format(idx_to_user[idx], " ".join([str(val)[:8] for val in emb.tolist()])))
         for idx, emb in enumerate(entity_emb_mtx):
-            fout.write("{} {}\n".format(idx_to_entity[idx], " ".join([str(val) for val in emb.tolist()])))
+            fout.write("{} {}\n".format(idx_to_entity[idx], " ".join([str(val)[:8] for val in emb.tolist()])))
 
 def topk_eval(sess, model, user_list, train_record, test_record, item_set, k_list, batch_size):
     precision_list = {k: [] for k in k_list}
